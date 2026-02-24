@@ -1,0 +1,32 @@
+# Orquestração (App + Postgres)
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: estoque_db
+    restart: always
+    environment:
+      POSTGRES_USER: user_estoque
+      POSTGRES_PASSWORD: password_123
+      POSTGRES_DB: db_estoque_vendas
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  web:
+    build: .
+    container_name: estoque_app
+    command: python run.py
+    volumes:
+      - .:/app
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=postgresql://user_estoque:password_123@db:5432/db_estoque_vendas
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
